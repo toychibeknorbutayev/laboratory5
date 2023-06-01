@@ -1,32 +1,31 @@
-# ntt_uz
+import numpy as np
+import cv2 as cv
+import glob
 
-def is_leap_year(year):
- if (year % 4) == 0:
-   if (year % 100) == 0:
-     if (year % 400) == 0:
-       return 'Leap'
-     else:
-       return 'Not leap'
-   else:
-     return 'Leap'
- else:
-   return 'Not leap'
+chessboardSize = (10,14)
+criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+objp = np.zeros((chessboardSize[0] * chessboardSize[1], 3), np.float32)
+objp[:,:2] = np.mgrid[0:chessboardSize[0],0:chessboardSize[1]].T.reshape(-1, 2)
+prev_img_shape = None
 
-# функцию можно переписать с помощью логических операторов and (И), or (ИЛИ) и not (НЕ)
-def is_leap_year(year):
- # \ используется для объединения нескольких строк кода
- # в один блок
- if (year % 4) == 0 and (year % 100) == 0 and (year % 400) == 0 \
- or (year % 4) == 0 and not (year % 100) == 0:
-   return 'Leap'
- else:
-   return 'Not leap'
+objpoints = []
+imgpoints = [] 
 
-print(
- is_leap_year(
-   int(
-     input('Year: ')
-   )
- )
-)
+images = glob.glob('*.jpg')
+for image in images:
+    print(image)
+    img = cv.imread(image)
+    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    ret, corners = cv.findChessboardCorners(gray, chessboardSize,
+        cv.CALIB_CB_ADAPTIVE_THRESH + cv.CALIB_CB_FAST_CHECK + cv.CALIB_CB_NORMALIZE_IMAGE)
 
+    if ret == True:
+        objpoints.append(objp)
+        corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+        imgpoints.append(corners)
+        cv.drawChessboardCorners(img, chessboardSize, corners2, ret)
+
+    cv.imshow('img', img)
+    cv.imwrite('caliResult.png', img)
+    cv.waitKey(100)
+cv.destroyAllWindows()
