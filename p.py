@@ -16,7 +16,6 @@ for image in images:
     img = cv.imread(image)
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     ret, corners = cv.findChessboardCorners(gray, chessboardSize)
-    if ret == True:
         objpoints.append(objp)
         corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
         imgpoints.append(corners)
